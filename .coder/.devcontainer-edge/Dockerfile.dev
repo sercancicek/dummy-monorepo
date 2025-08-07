@@ -1,0 +1,38 @@
+# default to Python 3.11
+ARG PYTHON_VERSION=3.11
+FROM python:${PYTHON_VERSION}-slim-bookworm
+
+ARG PROJECT_PATH
+ARG NEXUS_USERNAME
+ARG NEXUS_PASSWORD
+
+# Upgrade system, install utilities
+RUN apt-get update \
+  && apt-get upgrade -y --no-install-recommends \
+  && apt-get install -y --no-install-recommends \
+       curl jq net-tools openssh-client
+
+# Install Poetry
+RUN pip install --no-cache-dir --upgrade poetry==1.8.2
+
+# Create picnic user
+RUN groupadd --gid 1000 picnic \
+  && useradd --create-home --uid 1000 --gid 1000 picnic
+
+# Ensure picnic user can run docker
+RUN groupadd docker \
+  && adduser picnic docker
+
+USER picnic
+
+# Install Python dependencies
+WORKDIR /home/picnic
+ENV POETRY_VIRTUALENVS_IN_PROJECT=1
+COPY ${PROJECT_PATH}/pyproject.toml ./
+COPY ${PROJECT_PATH}/poetry.lock* ./
+RUN poetry config http-basic.picnic ${NEXUS_USERNAME} ${NEXUS_PASSWORD} \
+  && poetry install --sync
+
+WORKDIR /workspaces/${PROJECT_PATH}
+
+USER root
