@@ -1,8 +1,8 @@
 {
   "name": "picnic-edge-devcontainer",
   "build": {
-    "context": "../..",
-    "dockerfile": ".coder/.devcontainer-edge/Dockerfile.dev",
+   "context": ".",
+   "dockerfile": "Dockerfile.dev",
     "args": {
       "PYTHON_VERSION": "${localEnv:PYTHON_VERSION}",
       "PROJECT_PATH": "${localEnv:PROJECT_PATH}",
