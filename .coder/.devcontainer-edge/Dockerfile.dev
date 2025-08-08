@@ -38,7 +38,6 @@ ARG NEXUS_USERNAME
 ARG NEXUS_PASSWORD
 
 WORKDIR /home/picnic
-ENV POETRY_VIRTUALENVS_IN_PROJECT 1
 
 # Copy only dependency files for caching and correct ownership
 COPY --chown=picnic:picnic ${PROJECT_PATH}/pyproject.toml ./pyproject.toml
