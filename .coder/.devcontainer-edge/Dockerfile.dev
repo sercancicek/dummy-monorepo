@@ -37,14 +37,19 @@ ARG PROJECT_PATH
 ARG NEXUS_USERNAME
 ARG NEXUS_PASSWORD
 
-# Work inside the project so .venv is created there
-WORKDIR /workspaces/${PROJECT_PATH}
+WORKDIR /home/picnic
+ENV POETRY_VIRTUALENVS_IN_PROJECT 1
 
 # Copy only dependency files for caching and correct ownership
 COPY --chown=picnic:picnic ${PROJECT_PATH}/pyproject.toml ./pyproject.toml
 COPY --chown=picnic:picnic ${PROJECT_PATH}/poetry.lock* ./poetry.lock
 
-RUN poetry config http-basic.picnic ${NEXUS_USERNAME} ${NEXUS_PASSWORD} \
-  && poetry install --sync
+RUN poetry config http-basic.picnic ${NEXUS_USERNAME} ${NEXUS_PASSWORD}
+RUN poetry install --sync
+
+RUN pip install --upgrade --user "picnic-poetry-plugin" -i "https://$NEXUS_USERNAME:$NEXUS_PASSWORD@nexus.global.picnicinternational.com/repository/pypi-public/simple"
+RUN rm pyproject.toml poetry.lock
+
+WORKDIR /workspaces/${PROJECT_PATH}
 
 USER root
