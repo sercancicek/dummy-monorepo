@@ -10,7 +10,7 @@
       "NEXUS_PASSWORD": "${localEnv:NEXUS_PASSWORD}"
     }
   },
-  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}/${localEnv:PROJECT_PATH}",
+  "workspaceFolder": "/workspaces/${localEnv:PROJECT_PATH}",
   "privileged": true,
   "remoteUser": "picnic",
   "remoteEnv": {

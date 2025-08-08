@@ -29,8 +29,6 @@ RUN groupadd --gid 1000 picnic \
 
 USER picnic
 
-# In-project virtualenvs, like your devcontainer
-ENV POETRY_VIRTUALENVS_IN_PROJECT=1
 
 # --- deps install (minimal; same flow as your file) ---
 ARG PROJECT_PATH
