@@ -1,38 +1,50 @@
-# default to Python 3.11
-ARG PYTHON_VERSION=3.11
-FROM python:${PYTHON_VERSION}-slim-bookworm
+###############################
+# Stage: bring in Python 3.12 #
+###############################
+FROM python:3.12-slim-bookworm AS py312
 
+########################################
+# Final image with both 3.11 and 3.12  #
+########################################
+FROM python:3.11-slim-bookworm
+
+# --- add Python 3.12 side-by-side (minimal bits) ---
+# Interpreter + pip for 3.12
+COPY --from=py312 /usr/local/bin/python3.12 /usr/local/bin/
+COPY --from=py312 /usr/local/bin/pip3 /usr/local/bin/pip3.12
+# Standard library so 3.12 actually runs
+COPY --from=py312 /usr/local/lib/python3.12 /usr/local/lib/python3.12
+
+# Fix pip launchers so they call the right interpreters
+RUN ln -sf /usr/local/bin/pip3 /usr/local/bin/pip3.11 \
+ && sed -i '1 s,^.*/python$,#!/usr/local/bin/python3.11,' /usr/local/bin/pip3.11 || true \
+ && sed -i '1 s,^.*/python$,#!/usr/local/bin/python3.12,' /usr/local/bin/pip3.12 || true
+
+# Poetry (installed under default Python = 3.11)
+RUN pip3.11 install --no-cache-dir --upgrade poetry==1.8.2
+
+# Create picnic user (minimal)
+RUN groupadd --gid 1000 picnic \
+  && useradd --create-home --uid 1000 --gid 1000 picnic
+
+USER picnic
+
+# In-project virtualenvs, like your devcontainer
+ENV POETRY_VIRTUALENVS_IN_PROJECT=1
+
+# --- deps install (minimal; same flow as your file) ---
 ARG PROJECT_PATH
 ARG NEXUS_USERNAME
 ARG NEXUS_PASSWORD
 
-# Upgrade system, install utilities
-RUN apt-get update \
-  && apt-get upgrade -y --no-install-recommends \
-  && apt-get install -y --no-install-recommends \
-       curl jq net-tools openssh-client
+# Work inside the project so .venv is created there
+WORKDIR /workspaces/${PROJECT_PATH}
 
-# Install Poetry
-RUN pip install --no-cache-dir --upgrade poetry==1.8.2
+# Copy only dependency files for caching and correct ownership
+COPY --chown=picnic:picnic ${PROJECT_PATH}/pyproject.toml ./pyproject.toml
+COPY --chown=picnic:picnic ${PROJECT_PATH}/poetry.lock* ./poetry.lock
 
-# Create picnic user
-RUN groupadd --gid 1000 picnic \
-  && useradd --create-home --uid 1000 --gid 1000 picnic
-
-# Ensure picnic user can run docker
-RUN groupadd docker \
-  && adduser picnic docker
-
-USER picnic
-
-# Install Python dependencies
-WORKDIR /home/picnic
-ENV POETRY_VIRTUALENVS_IN_PROJECT=1
-COPY ${PROJECT_PATH}/pyproject.toml ./
-COPY ${PROJECT_PATH}/poetry.lock* ./
 RUN poetry config http-basic.picnic ${NEXUS_USERNAME} ${NEXUS_PASSWORD} \
   && poetry install --sync
-
-WORKDIR /workspaces/${PROJECT_PATH}
 
 USER root
