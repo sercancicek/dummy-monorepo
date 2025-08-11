@@ -1,0 +1,41 @@
+{
+  "name": "picnic-edge-devcontainer",
+  "build": {
+   "context": "../..",
+   "dockerfile": "Dockerfile.dev",
+    "args": {
+      "PROJECT_PATH": "${localEnv:PROJECT_PATH}",
+      "NEXUS_USERNAME": "${localEnv:NEXUS_USERNAME}",
+      "NEXUS_PASSWORD": "${localEnv:NEXUS_PASSWORD}"
+    }
+  },
+  "privileged": true,
+  "containerUser": "picnic",
+  "remoteUser": "picnic",
+  "remoteEnv": {
+    // By specifying this, poetry will use this virtual environment instead of creating a new one.
+    // https://github.com/python-poetry/poetry/issues/1579#issuecomment-1266293775
+    "VIRTUAL_ENV": "/home/picnic/.venv/",
+    "PATH": "/home/picnic/.venv/bin/:${containerEnv:PATH}",
+    "NEXUS_USERNAME": "${localEnv:NEXUS_USERNAME}",
+    "NEXUS_PASSWORD": "${localEnv:NEXUS_PASSWORD}",
+    // Snowflake auth configuration (see ADP-473 for details)
+    "SF_AUTH_SOCKET_PORT": "42069",
+    "SNOWFLAKE_AUTH_SOCKET_REUSE_PORT": "true",
+    "SNOWFLAKE_AUTH_SOCKET_MSG_DONTWAIT": "true"
+  },
+  "forwardPorts": [42069],
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "remote.autoForwardPorts": true,
+        "remote.autoForwardPortsSource": "process",
+        "python.defaultInterpreterPath": "/home/picnic/.venv/bin/python"
+      },
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "ms-python.python"
+      ]
+    }
+  }
+}

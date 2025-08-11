@@ -1,0 +1,30 @@
+[tool.poetry]
+package-mode = false
+name = "customer-dwh-queries"
+description = "Edge system for dwh query automations from the customer team"
+authors = ["Customer Team leonard.hupfeld@teampicnic.com"]
+readme = "README.md"
+[[tool.poetry.source]]
+name = "picnic"
+url = "https://nexus.global.picnicinternational.com/repository/pypi-public/simple/"
+priority = "primary"
+
+[tool.picnic-poetry]
+set-version = true
+
+[tool.poetry.dependencies]
+python = "~=3.11.0"
+pandas = "~=2.2"
+picnic-database = "~=11.0"
+picnic-client = "~=9.2"
+picnic-tools = "~=1.1.1"
+picnic-google-sheets = "~=0.6.1"
+tenacity = "~=8.0"
+boto3 = "~=1.26"
+
+[tool.poetry.dependencies.picnic-monitoring]
+version = "~=3.0"
+extras = ["sentry"]
+
+[tool.poetry.group.dev.dependencies]
+picnic-guide = "==7.8.14"

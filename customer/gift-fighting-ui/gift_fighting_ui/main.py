@@ -1,0 +1,1 @@
+"""Start EdgeUI Application."""
