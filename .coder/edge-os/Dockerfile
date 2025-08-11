@@ -43,7 +43,6 @@ ENV POETRY_VIRTUALENVS_IN_PROJECT=1
 COPY ${PROJECT_PATH}/pyproject.toml ${PROJECT_PATH}/poetry.lock ./
 RUN poetry config -- http-basic.picnic ${NEXUS_USERNAME} ${NEXUS_PASSWORD}
 RUN poetry install --sync
-RUN rm pyproject.toml poetry.lock
 
 # Set workdir where project is mounted within the dev container
 WORKDIR /workspaces/picnic-edge/${PROJECT_PATH}

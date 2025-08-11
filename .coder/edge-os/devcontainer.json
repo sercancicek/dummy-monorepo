@@ -2,7 +2,7 @@
   "name": "picnic-edge-devcontainer",
   "build": {
    "context": "../..",
-   "dockerfile": "Dockerfile.dev",
+   "dockerfile": "Dockerfile",
     "args": {
       "PROJECT_PATH": "${localEnv:PROJECT_PATH}",
       "NEXUS_USERNAME": "${localEnv:NEXUS_USERNAME}",
