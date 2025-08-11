@@ -39,7 +39,6 @@ USER picnic
 
 # Install Python dependencies
 WORKDIR /home/picnic
-ENV POETRY_VIRTUALENVS_IN_PROJECT=1
 COPY ${PROJECT_PATH}/pyproject.toml ${PROJECT_PATH}/poetry.lock ./
 RUN poetry config -- http-basic.picnic ${NEXUS_USERNAME} ${NEXUS_PASSWORD}
 RUN poetry install --sync
